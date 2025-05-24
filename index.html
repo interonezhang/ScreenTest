@@ -21,7 +21,7 @@
             font-weight: bold;
             color: #333;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 300px;
+            margin-bottom: 30px;
             letter-spacing: 2px;
         }
         .button {
@@ -32,7 +32,7 @@
             border-radius: 5px;
             cursor: pointer;
             color: white;
-            transition: transform 0.1s ease;
+            transition: all 0.3s ease;
             min-width: 120px;
         }
         .button:hover {
@@ -41,8 +41,22 @@
         .button:active {
             transform: scale(0.95);
         }
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+        .button-row {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            width: 100%;
+        }
         .random-button {
-            background-color: #4CAF50;
+            background-color: #FF69B4;
         }
         .black-button {
             background-color: #000000;
@@ -60,39 +74,94 @@
         .blue-button {
             background-color: #0000ff;
         }
-        .button-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            max-width: 600px;
+        .reset-button {
+            background-color: #404040;
         }
-        .button-row {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
+        /* 全屏模式下隐藏所有元素 */
+        .fullscreen-active .hide-in-fullscreen {
+            display: none !important;
+        }
+        #fullscreen-message {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-family: "Microsoft YaHei", "微软雅黑", sans-serif;
+        }
+        /* 添加隐藏类 */
+        .hide-element {
+            display: none !important;
+        }
+        /* 添加过渡效果 */
+        .button-row, h1 {
+            transition: opacity 0.3s ease;
         }
     </style>
 </head>
 <body>
-    <h1>屏幕检测器</h1>
-    <div class="button-container">
-        <div class="button-row">
-            <button class="button black-button" onclick="setColor('#000000')">黑色</button>
-            <button class="button white-button" onclick="setColor('#ffffff')">白色</button>
-            <button class="button random-button" onclick="changeColor()">随机颜色</button>
+    <h1 class="hide-in-fullscreen">屏幕检测器</h1>
+    <div class="button-container hide-in-fullscreen">
+        <div class="button-row" id="first-row">
+            <button class="button black-button" onclick="setColorAndFullscreen('#000000')">黑色</button>
+            <button class="button white-button" onclick="setColorAndFullscreen('#ffffff')">白色</button>
+        </div>
+        <div class="button-row" id="second-row">
+            <button class="button red-button" onclick="setColorAndFullscreen('#ff0000')">红色</button>
+            <button class="button green-button" onclick="setColorAndFullscreen('#00ff00')">绿色</button>
+            <button class="button blue-button" onclick="setColorAndFullscreen('#0000ff')">蓝色</button>
         </div>
         <div class="button-row">
-            <button class="button red-button" onclick="setColor('#ff0000')">红色</button>
-            <button class="button green-button" onclick="setColor('#00ff00')">绿色</button>
-            <button class="button blue-button" onclick="setColor('#0000ff')">蓝色</button>
-        </div>
-        <div class="button-row">
-            <button class="button random-button" onclick="resetColor()">重置颜色</button>
+            <button class="button random-button" onclick="randomColorMode()">随机颜色</button>
+            <button class="button reset-button" onclick="resetAll()">重置</button>
         </div>
     </div>
+    <div id="fullscreen-message">按ESC键或点击屏幕退出全屏</div>
 
     <script>
+        let originalColor = '#ffffff';
+        let isFullscreen = false;
+        let isRandomMode = false;
+
+        // 获取需要控制显示隐藏的元素
+        const title = document.querySelector('h1');
+        const firstRow = document.getElementById('first-row');
+        const secondRow = document.getElementById('second-row');
+
+        function toggleElements(shouldHide) {
+            const elements = [title, firstRow, secondRow];
+            elements.forEach(element => {
+                if (shouldHide) {
+                    element.classList.add('hide-element');
+                } else {
+                    element.classList.remove('hide-element');
+                }
+            });
+        }
+
+        function randomColorMode() {
+            isRandomMode = true;
+            toggleElements(true);
+            changeColor();
+        }
+
+        function resetAll() {
+            isRandomMode = false;
+            toggleElements(false);
+            // 重置按钮样式
+            const randomButton = document.querySelector('.random-button');
+            const resetButton = document.querySelector('.reset-button');
+            randomButton.style.backgroundColor = '#FF69B4';  // 恢复粉红色
+            resetButton.style.backgroundColor = '#404040';    // 恢复灰黑色
+            randomButton.style.color = '#ffffff';
+            resetButton.style.color = '#ffffff';
+            resetColor();
+        }
+
         function getRandomColor() {
             const letters = '0123456789ABCDEF';
             let color = '#';
@@ -103,15 +172,81 @@
         }
 
         function changeColor() {
-            document.body.style.backgroundColor = getRandomColor();
+            setColor(getRandomColor());
         }
 
         function resetColor() {
-            document.body.style.backgroundColor = '#ffffff';
+            setColor('#ffffff');
         }
 
         function setColor(color) {
             document.body.style.backgroundColor = color;
+            if (isRandomMode) {
+                // 在随机模式下，同步更新按钮颜色
+                const randomButton = document.querySelector('.random-button');
+                const resetButton = document.querySelector('.reset-button');
+                
+                randomButton.style.backgroundColor = color;
+                resetButton.style.backgroundColor = color;
+                
+                // 根据背景色的亮度调整文字颜色
+                const isLight = isLightColor(color);
+                const textColor = isLight ? '#000000' : '#ffffff';
+                randomButton.style.color = textColor;
+                resetButton.style.color = textColor;
+            }
+        }
+
+        // 判断颜色是否为浅色
+        function isLightColor(color) {
+            const hex = color.replace('#', '');
+            const r = parseInt(hex.substr(0, 2), 16);
+            const g = parseInt(hex.substr(2, 2), 16);
+            const b = parseInt(hex.substr(4, 2), 16);
+            const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+            return brightness > 128;
+        }
+
+        async function setColorAndFullscreen(color) {
+            if (isRandomMode) {
+                return; // 在随机模式下不响应颜色按钮
+            }
+            // 保存当前颜色
+            originalColor = document.body.style.backgroundColor || '#ffffff';
+            
+            // 设置新颜色
+            setColor(color);
+
+            // 进入全屏
+            try {
+                await document.documentElement.requestFullscreen();
+                isFullscreen = true;
+                document.body.classList.add('fullscreen-active');
+                document.getElementById('fullscreen-message').style.display = 'block';
+            } catch (err) {
+                console.error('全屏模式出错:', err);
+            }
+        }
+
+        // 处理退出全屏
+        document.addEventListener('fullscreenchange', function() {
+            if (!document.fullscreenElement && isFullscreen) {
+                exitFullscreenMode();
+            }
+        });
+
+        // 处理点击事件
+        document.addEventListener('click', function(e) {
+            if (isFullscreen) {
+                document.exitFullscreen();
+            }
+        });
+
+        function exitFullscreenMode() {
+            isFullscreen = false;
+            document.body.classList.remove('fullscreen-active');
+            document.getElementById('fullscreen-message').style.display = 'none';
+            setColor(originalColor);
         }
     </script>
 </body>
