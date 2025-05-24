@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>屏幕检测器</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #ffffff;
+            transition: background-color 0.3s ease;
+        }
+        h1 {
+            font-family: "Microsoft YaHei", "微软雅黑", sans-serif;
+            font-size: 48px;
+            font-weight: bold;
+            color: #333;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 300px;
+            letter-spacing: 2px;
+        }
+        .button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            transition: transform 0.1s ease;
+            min-width: 120px;
+        }
+        .button:hover {
+            transform: scale(1.05);
+        }
+        .button:active {
+            transform: scale(0.95);
+        }
+        .random-button {
+            background-color: #4CAF50;
+        }
+        .black-button {
+            background-color: #000000;
+        }
+        .white-button {
+            background-color: #666666;
+        }
+        .red-button {
+            background-color: #ff0000;
+        }
+        .green-button {
+            background-color: #00ff00;
+            color: black;
+        }
+        .blue-button {
+            background-color: #0000ff;
+        }
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            max-width: 600px;
+        }
+        .button-row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>屏幕检测器</h1>
+    <div class="button-container">
+        <div class="button-row">
+            <button class="button black-button" onclick="setColor('#000000')">黑色</button>
+            <button class="button white-button" onclick="setColor('#ffffff')">白色</button>
+            <button class="button random-button" onclick="changeColor()">随机颜色</button>
+        </div>
+        <div class="button-row">
+            <button class="button red-button" onclick="setColor('#ff0000')">红色</button>
+            <button class="button green-button" onclick="setColor('#00ff00')">绿色</button>
+            <button class="button blue-button" onclick="setColor('#0000ff')">蓝色</button>
+        </div>
+        <div class="button-row">
+            <button class="button random-button" onclick="resetColor()">重置颜色</button>
+        </div>
+    </div>
+
+    <script>
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        function changeColor() {
+            document.body.style.backgroundColor = getRandomColor();
+        }
+
+        function resetColor() {
+            document.body.style.backgroundColor = '#ffffff';
+        }
+
+        function setColor(color) {
+            document.body.style.backgroundColor = color;
+        }
+    </script>
+</body>
+</html> 
