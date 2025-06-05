@@ -9,78 +9,166 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             background-color: #ffffff;
             transition: background-color 0.3s ease;
+            position: relative;
         }
+
         h1 {
             font-family: "Microsoft YaHei", "微软雅黑", sans-serif;
             font-size: 48px;
             font-weight: bold;
             color: #333;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
+            margin: 30px 0;
             letter-spacing: 2px;
-        }
-        .button {
-            padding: 10px 20px;
-            margin: 10px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            color: white;
-            transition: all 0.3s ease;
-            min-width: 120px;
-        }
-        .button:hover {
-            transform: scale(1.05);
-        }
-        .button:active {
-            transform: scale(0.95);
-        }
-        .button-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 30px;
-            max-width: 600px;
-            margin-top: 20px;
-        }
-        .button-row {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
+            text-align: center;
             width: 100%;
         }
-        .random-button {
-            background-color: #FF69B4;
+
+        /* 菜单容器 */
+        .menu-container {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            font-family: "Microsoft YaHei", "微软雅黑", sans-serif;
         }
-        .black-button {
-            background-color: #000000;
-        }
-        .white-button {
+
+        /* 主菜单按钮 */
+        .menu-button {
             background-color: #666666;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        .red-button {
-            background-color: #ff0000;
+
+        .menu-button:hover {
+            background-color: #808080;
         }
-        .green-button {
-            background-color: #00ff00;
-            color: black;
+
+        /* 主菜单内容 */
+        .menu-content {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 5px;
+            background-color: #ffffff;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            padding: 5px 0;
+            transition: visibility 0s linear 0.2s, opacity 0.2s;
         }
-        .blue-button {
-            background-color: #0000ff;
+
+        .menu-container:hover .menu-content {
+            visibility: visible;
+            opacity: 1;
+            transition-delay: 0s;
         }
-        .reset-button {
-            background-color: #404040;
+
+        /* 主菜单项 */
+        .menu-item {
+            position: relative;
+            padding: 12px 35px 12px 16px;
+            color: #333;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.2s ease;
         }
-        /* 全屏模式下隐藏所有元素 */
-        .fullscreen-active .hide-in-fullscreen {
-            display: none !important;
+
+        .menu-item:hover {
+            background-color: #f0f0f0;
         }
+
+        /* 箭头指示器 */
+        .menu-item::after {
+            content: '›';
+            position: absolute;
+            right: 10px;
+            font-size: 20px;
+            line-height: 1;
+            transition: transform 0.2s ease;
+        }
+
+        .menu-item:hover::after {
+            transform: translateX(3px);
+        }
+
+        /* 子菜单包装器 */
+        .submenu-wrapper {
+            position: absolute;
+            top: -5px;
+            left: calc(100% - 20px);
+            height: calc(100% + 10px);
+            width: 200px;
+            background: transparent;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* 子菜单 */
+        .submenu {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            left: 20px;
+            top: 0;
+            background-color: #ffffff;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            padding: 5px 0;
+            transition: visibility 0s linear 0.2s, opacity 0.2s;
+        }
+
+        /* 显示子菜单的条件 */
+        .menu-item:hover .submenu-wrapper .submenu,
+        .submenu-wrapper:hover .submenu {
+            visibility: visible;
+            opacity: 1;
+            transition-delay: 0s;
+        }
+
+        /* 子菜单项 */
+        .submenu-item {
+            padding: 12px 16px;
+            color: #333;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.2s ease;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        .submenu-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* 颜色指示器 */
+        .color-indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 10px;
+            display: inline-block;
+            vertical-align: middle;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            pointer-events: none;
+        }
+
+        /* 全屏消息 */
         #fullscreen-message {
             display: none;
             position: fixed;
@@ -92,75 +180,78 @@
             padding: 10px 20px;
             border-radius: 5px;
             font-family: "Microsoft YaHei", "微软雅黑", sans-serif;
+            z-index: 1001;
         }
-        /* 添加隐藏类 */
-        .hide-element {
-            display: none !important;
-        }
-        /* 添加过渡效果 */
-        .button-row, h1 {
+
+        /* 全屏模式下隐藏元素 */
+        body.fullscreen-active .menu-container,
+        body.fullscreen-active h1 {
+            opacity: 0;
+            pointer-events: none;
             transition: opacity 0.3s ease;
         }
     </style>
 </head>
 <body>
-    <h1 class="hide-in-fullscreen">屏幕检测器</h1>
-    <div class="button-container hide-in-fullscreen">
-        <div class="button-row" id="first-row">
-            <button class="button black-button" onclick="setColorAndFullscreen('#000000')">黑色</button>
-            <button class="button white-button" onclick="setColorAndFullscreen('#ffffff')">白色</button>
-        </div>
-        <div class="button-row" id="second-row">
-            <button class="button red-button" onclick="setColorAndFullscreen('#ff0000')">红色</button>
-            <button class="button green-button" onclick="setColorAndFullscreen('#00ff00')">绿色</button>
-            <button class="button blue-button" onclick="setColorAndFullscreen('#0000ff')">蓝色</button>
-        </div>
-        <div class="button-row">
-            <button class="button random-button" onclick="randomColorMode()">随机颜色</button>
-            <button class="button reset-button" onclick="resetAll()">重置</button>
+    <div class="menu-container">
+        <button class="menu-button">菜单</button>
+        <div class="menu-content">
+            <div class="menu-item">
+                <span>像素检测</span>
+                <div class="submenu-wrapper">
+                    <div class="submenu">
+                        <div class="submenu-item" data-color="#000000">
+                            <span class="color-indicator" style="background-color: #000000;"></span>
+                            <span>黑色</span>
+                        </div>
+                        <div class="submenu-item" data-color="#ffffff">
+                            <span class="color-indicator" style="background-color: #ffffff;"></span>
+                            <span>白色</span>
+                        </div>
+                        <div class="submenu-item" data-color="#ff0000">
+                            <span class="color-indicator" style="background-color: #ff0000;"></span>
+                            <span>红色</span>
+                        </div>
+                        <div class="submenu-item" data-color="#00ff00">
+                            <span class="color-indicator" style="background-color: #00ff00;"></span>
+                            <span>绿色</span>
+                        </div>
+                        <div class="submenu-item" data-color="#0000ff">
+                            <span class="color-indicator" style="background-color: #0000ff;"></span>
+                            <span>蓝色</span>
+                        </div>
+                        <div class="submenu-item" data-color="random">
+                            <span class="color-indicator" style="background: linear-gradient(45deg, #ff0000, #00ff00, #0000ff);"></span>
+                            <span>随机色</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <h1>屏幕检测器</h1>
     <div id="fullscreen-message">按ESC键或点击屏幕退出全屏</div>
 
     <script>
         let originalColor = '#ffffff';
         let isFullscreen = false;
-        let isRandomMode = false;
 
-        // 获取需要控制显示隐藏的元素
-        const title = document.querySelector('h1');
-        const firstRow = document.getElementById('first-row');
-        const secondRow = document.getElementById('second-row');
+        // 使用事件委托处理子菜单点击
+        document.querySelector('.submenu').addEventListener('click', function(e) {
+            const item = e.target.closest('.submenu-item');
+            if (!item) return;
 
-        function toggleElements(shouldHide) {
-            const elements = [title, firstRow, secondRow];
-            elements.forEach(element => {
-                if (shouldHide) {
-                    element.classList.add('hide-element');
-                } else {
-                    element.classList.remove('hide-element');
-                }
-            });
-        }
+            e.preventDefault();
+            e.stopPropagation();
 
-        function randomColorMode() {
-            isRandomMode = true;
-            toggleElements(true);
-            changeColor();
-        }
-
-        function resetAll() {
-            isRandomMode = false;
-            toggleElements(false);
-            // 重置按钮样式
-            const randomButton = document.querySelector('.random-button');
-            const resetButton = document.querySelector('.reset-button');
-            randomButton.style.backgroundColor = '#FF69B4';  // 恢复粉红色
-            resetButton.style.backgroundColor = '#404040';    // 恢复灰黑色
-            randomButton.style.color = '#ffffff';
-            resetButton.style.color = '#ffffff';
-            resetColor();
-        }
+            const color = item.dataset.color;
+            if (color === 'random') {
+                randomColorMode();
+            } else {
+                setColorAndFullscreen(color);
+            }
+        });
 
         function getRandomColor() {
             const letters = '0123456789ABCDEF';
@@ -171,53 +262,19 @@
             return color;
         }
 
-        function changeColor() {
-            setColor(getRandomColor());
-        }
-
-        function resetColor() {
-            setColor('#ffffff');
-        }
-
         function setColor(color) {
             document.body.style.backgroundColor = color;
-            if (isRandomMode) {
-                // 在随机模式下，同步更新按钮颜色
-                const randomButton = document.querySelector('.random-button');
-                const resetButton = document.querySelector('.reset-button');
-                
-                randomButton.style.backgroundColor = color;
-                resetButton.style.backgroundColor = color;
-                
-                // 根据背景色的亮度调整文字颜色
-                const isLight = isLightColor(color);
-                const textColor = isLight ? '#000000' : '#ffffff';
-                randomButton.style.color = textColor;
-                resetButton.style.color = textColor;
-            }
         }
 
-        // 判断颜色是否为浅色
-        function isLightColor(color) {
-            const hex = color.replace('#', '');
-            const r = parseInt(hex.substr(0, 2), 16);
-            const g = parseInt(hex.substr(2, 2), 16);
-            const b = parseInt(hex.substr(4, 2), 16);
-            const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-            return brightness > 128;
+        function randomColorMode() {
+            const color = getRandomColor();
+            setColorAndFullscreen(color);
         }
 
         async function setColorAndFullscreen(color) {
-            if (isRandomMode) {
-                return; // 在随机模式下不响应颜色按钮
-            }
-            // 保存当前颜色
             originalColor = document.body.style.backgroundColor || '#ffffff';
-            
-            // 设置新颜色
             setColor(color);
 
-            // 进入全屏
             try {
                 await document.documentElement.requestFullscreen();
                 isFullscreen = true;
@@ -237,7 +294,7 @@
 
         // 处理点击事件
         document.addEventListener('click', function(e) {
-            if (isFullscreen) {
+            if (isFullscreen && !e.target.closest('.menu-container')) {
                 document.exitFullscreen();
             }
         });
@@ -250,4 +307,4 @@
         }
     </script>
 </body>
-</html> 
+</html>
