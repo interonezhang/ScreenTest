@@ -1,36 +1,43 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Screen Detector MVP v4</title>
+  <title>Screen Detector MVP v6</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header>
-    <div class="language-switcher">
-      <button class="lang-btn" data-lang="en">English</button>
-      <button class="lang-btn" data-lang="hi">हिन्दी</button>
-      <button class="lang-btn" data-lang="id">Bahasa</button>
-      <button class="lang-btn" data-lang="pt">Português</button>
+  <header class="site-header">
+    <div class="left">
+      <h1 data-i18n="title">Screen Detector</h1>
+      <p class="subtitle" data-i18n="subtitle">Check your screen for dead pixels and touch issues.</p>
     </div>
-    <h1 data-i18n="welcome">Welcome to Screen Detector</h1>
-    <p class="subtitle" data-i18n="subtitle">Easily test your device screen for dead pixels and touch issues.</p>
+    <div class="right">
+      <label for="lang-selector" class="visually-hidden" data-i18n="langLabel">Language</label>
+      <select id="lang-selector" aria-label="Language selector"></select>
+    </div>
   </header>
 
+  <div class="info-bar">
+    <div class="info-item"><strong data-i18n="resolutionLabel">Resolution:</strong> <span id="resolution-value">--</span></div>
+    <div class="info-item"><strong data-i18n="refreshLabel">Refresh:</strong> <span id="refresh-value">--</span> Hz</div>
+  </div>
+
   <main>
-    <p class="guide" data-i18n="guide">👉 Choose a test below to start checking your screen.</p>
+    <section class="welcome">
+      <h2 data-i18n="welcome">Welcome!</h2>
+      <p class="instruction" data-i18n="instruction">Choose a test below to start:</p>
+    </section>
 
-    <div class="button-group">
-      <button id="dead-pixel-btn" data-i18n="deadPixelBtn">Dead Pixel Test</button>
-      <button id="touch-test-btn" data-i18n="touchTestBtn">Touch Test</button>
-    </div>
-
-    <div id="test-area"></div>
+    <section class="buttons">
+      <button id="dead-pixel-btn" class="primary" data-i18n="deadPixel">Dead Pixel Test</button>
+      <button id="touch-test-btn" class="primary" data-i18n="touchTest">Touch Test</button>
+    </section>
   </main>
 
-  <footer>
-    <div id="ad-area">[Ad space reserved]</div>
+  <footer class="site-footer">
+    <div id="ad-area" aria-hidden="true">[Ad space reserved - bottom]</div>
   </footer>
 
   <script src="i18n.js"></script>
