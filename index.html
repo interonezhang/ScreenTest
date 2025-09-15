@@ -1,28 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Screen Detector MVP v3</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Screen Detector MVP v4</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header>
     <div class="language-switcher">
-      <button onclick="setLanguage('en')">English</button>
-      <button onclick="setLanguage('hi')">हिन्दी</button>
-      <button onclick="setLanguage('id')">Bahasa</button>
-      <button onclick="setLanguage('pt')">Português</button>
+      <button class="lang-btn" data-lang="en">English</button>
+      <button class="lang-btn" data-lang="hi">हिन्दी</button>
+      <button class="lang-btn" data-lang="id">Bahasa</button>
+      <button class="lang-btn" data-lang="pt">Português</button>
     </div>
-    <h1 id="welcome-text">Welcome to Screen Detector</h1>
-    <p id="subtitle-text">Easily test your device screen for dead pixels and touch issues.</p>
+    <h1 data-i18n="welcome">Welcome to Screen Detector</h1>
+    <p class="subtitle" data-i18n="subtitle">Easily test your device screen for dead pixels and touch issues.</p>
   </header>
 
   <main>
+    <p class="guide" data-i18n="guide">👉 Choose a test below to start checking your screen.</p>
+
     <div class="button-group">
-      <button onclick="chooseDeadPixelMode()" id="dead-pixel-btn">Dead Pixel Test</button>
-      <button onclick="startTouchTest()" id="touch-test-btn">Touch Test</button>
+      <button id="dead-pixel-btn" data-i18n="deadPixelBtn">Dead Pixel Test</button>
+      <button id="touch-test-btn" data-i18n="touchTestBtn">Touch Test</button>
     </div>
+
     <div id="test-area"></div>
   </main>
 
@@ -30,6 +33,7 @@
     <div id="ad-area">[Ad space reserved]</div>
   </footer>
 
+  <script src="i18n.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

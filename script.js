@@ -1,151 +1,173 @@
-const translations = {
-  en: {
-    welcome: "Welcome to Screen Detector",
-    subtitle: "Easily test your device screen for dead pixels and touch issues.",
-    deadPixelBtn: "Dead Pixel Test",
-    touchTestBtn: "Touch Test",
-  },
-  hi: {
-    welcome: "स्क्रीन डिटेक्टर में आपका स्वागत है",
-    subtitle: "अपने डिवाइस की स्क्रीन को डेड पिक्सल और टच समस्याओं के लिए आसानी से जांचें।",
-    deadPixelBtn: "डेड पिक्सल परीक्षण",
-    touchTestBtn: "टच परीक्षण",
-  },
-  id: {
-    welcome: "Selamat datang di Screen Detector",
-    subtitle: "Uji layar perangkat Anda dengan mudah untuk pixel mati dan masalah sentuh.",
-    deadPixelBtn: "Tes Pixel Mati",
-    touchTestBtn: "Tes Sentuh",
-  },
-  pt: {
-    welcome: "Bem-vindo ao Screen Detector",
-    subtitle: "Teste facilmente a tela do seu dispositivo para pixels mortos e problemas de toque.",
-    deadPixelBtn: "Teste de Pixel Morto",
-    touchTestBtn: "Teste de Toque",
-  },
-};
-
-function setLanguage(lang) {
-  document.getElementById("welcome-text").textContent = translations[lang].welcome;
-  document.getElementById("subtitle-text").textContent = translations[lang].subtitle;
-  document.getElementById("dead-pixel-btn").textContent = translations[lang].deadPixelBtn;
-  document.getElementById("touch-test-btn").textContent = translations[lang].touchTestBtn;
-}
-
-function chooseDeadPixelMode() {
-  const choice = confirm("OK = Auto cycle colors\nCancel = Manual mode (tap to change color)");
-  if (choice) {
-    startDeadPixelTest(true);
-  } else {
-    startDeadPixelTest(false);
+// main script (depends on i18n.js)
+(function(){
+  // helpers
+  function setLanguage(lang) {
+    try { localStorage.setItem('preferredLang', lang); } catch(e){}
+    window.i18n.apply(lang);
+    // update exit hint if present
+    const hint = document.getElementById('exit-hint');
+    if (hint) hint.textContent = window.i18n.t('exitHint');
   }
-}
 
-function startDeadPixelTest(autoMode) {
-  enterFullscreen();
-  const colors = ["black", "white", "red", "green", "blue"];
-  let i = 0;
-  const testArea = document.getElementById("test-area");
-  setupFullscreenArea(testArea);
-  showExitHint();
+  function initLanguage() {
+    const saved = (function(){ try { return localStorage.getItem('preferredLang'); } catch(e){ return null; }})();
+    const lang = saved || window.i18n.detectPreferred();
+    setLanguage(lang);
+  }
 
-  if (autoMode) {
-    const interval = setInterval(() => {
-      testArea.style.backgroundColor = colors[i];
-      i = (i + 1) % colors.length;
-    }, 1000);
-    testArea.onclick = () => {
-      clearInterval(interval);
+  // DOM ready
+  document.addEventListener('DOMContentLoaded', () => {
+    // init language first
+    initLanguage();
+
+    // wire up language buttons
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
+    });
+
+    // buttons
+    document.getElementById('dead-pixel-btn').addEventListener('click', chooseDeadPixelMode);
+    document.getElementById('touch-test-btn').addEventListener('click', startTouchTest);
+
+    // allow ESC to exit
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') exitTest(); });
+  });
+
+  // --- dead pixel test ---
+  function chooseDeadPixelMode(){
+    const msg = window.i18n.t('chooseModeConfirm');
+    const ok = confirm(msg);
+    startDeadPixelTest(ok);
+  }
+
+  function startDeadPixelTest(autoMode){
+    enterFullscreen();
+    const colors = ['black','white','red','green','blue'];
+    let i = 0;
+    const area = document.getElementById('test-area');
+    setupFullscreenArea(area);
+    area.style.background = colors[i];
+    showExitHint();
+
+    let intervalId = null;
+    function cleanup(){
+      if (intervalId) { clearInterval(intervalId); intervalId = null; }
       exitTest();
-    };
-  } else {
-    testArea.style.backgroundColor = colors[i];
-    testArea.onclick = () => {
-      i = (i + 1) % colors.length;
-      testArea.style.backgroundColor = colors[i];
-    };
-    testArea.addEventListener("dblclick", () => exitTest());
-  }
-}
-
-function startTouchTest() {
-  enterFullscreen();
-  const testArea = document.getElementById("test-area");
-  setupFullscreenArea(testArea);
-  testArea.style.backgroundColor = "white";
-  testArea.innerHTML = "<p style='text-align:center;margin-top:20%;'>Drag your finger to draw and check touch response.<br>Double-tap anywhere to exit.</p>";
-  showExitHint();
-
-  let drawing = false;
-  testArea.addEventListener("touchstart", (e) => {
-    drawing = true;
-    drawDot(e.touches[0].clientX, e.touches[0].clientY, testArea);
-  });
-  testArea.addEventListener("touchmove", (e) => {
-    if (drawing) {
-      drawDot(e.touches[0].clientX, e.touches[0].clientY, testArea);
     }
-  });
-  testArea.addEventListener("touchend", () => {
-    drawing = false;
-  });
-  testArea.addEventListener("dblclick", () => exitTest());
-}
 
-function drawDot(x, y, container) {
-  const dot = document.createElement("div");
-  dot.style.position = "absolute";
-  dot.style.width = "8px";
-  dot.style.height = "8px";
-  dot.style.background = "black";
-  dot.style.borderRadius = "50%";
-  dot.style.left = x - 4 + "px";
-  dot.style.top = y - 4 + "px";
-  container.appendChild(dot);
-}
-
-function setupFullscreenArea(area) {
-  area.style.height = "100vh";
-  area.style.width = "100vw";
-  area.style.position = "fixed";
-  area.style.top = "0";
-  area.style.left = "0";
-  area.style.zIndex = "9998";
-  area.innerHTML = "";
-}
-
-function showExitHint() {
-  let hint = document.createElement("div");
-  hint.id = "exit-hint";
-  hint.innerText = "Tap anywhere or double-tap to exit";
-  document.body.appendChild(hint);
-}
-
-function hideExitHint() {
-  const hint = document.getElementById("exit-hint");
-  if (hint) hint.remove();
-}
-
-function enterFullscreen() {
-  if (document.documentElement.requestFullscreen) {
-    document.documentElement.requestFullscreen();
+    if (autoMode){
+      intervalId = setInterval(()=>{ i = (i+1) % colors.length; area.style.background = colors[i]; }, 1000);
+      area.onclick = () => { if (intervalId) { clearInterval(intervalId); intervalId=null; area.onclick = null; } exitTest(); };
+    } else {
+      // manual mode: tap to advance color; double-click to exit
+      area.onclick = () => { i = (i+1) % colors.length; area.style.background = colors[i]; };
+      // support double-tap (dblclick)
+      area.ondblclick = () => exitTest();
+    }
   }
-}
 
-function exitFullscreen() {
-  if (document.exitFullscreen) {
-    document.exitFullscreen();
+  // --- touch test ---
+  let _touchHandlers = null;
+  function startTouchTest(){
+    enterFullscreen();
+    const area = document.getElementById('test-area');
+    setupFullscreenArea(area);
+    showExitHint();
+
+    // create canvas full-screen
+    area.innerHTML = '';
+    const canvas = document.createElement('canvas');
+    canvas.id = 'touch-canvas';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    area.appendChild(canvas);
+
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,canvas.width, canvas.height);
+    ctx.lineWidth = 10;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#0070f3';
+
+    let drawing = false;
+
+    const pointerDown = (ev) => {
+      ev.preventDefault();
+      drawing = true;
+      const x = ev.clientX;
+      const y = ev.clientY;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    };
+    const pointerMove = (ev) => {
+      if (!drawing) return;
+      ev.preventDefault();
+      const x = ev.clientX; const y = ev.clientY;
+      ctx.lineTo(x,y);
+      ctx.stroke();
+    };
+    const pointerUp = (ev)=>{ drawing = false; };
+
+    canvas.addEventListener('pointerdown', pointerDown);
+    canvas.addEventListener('pointermove', pointerMove);
+    canvas.addEventListener('pointerup', pointerUp);
+    canvas.addEventListener('pointercancel', pointerUp);
+    canvas.addEventListener('dblclick', ()=> exitTest());
+
+    _touchHandlers = { canvas, pointerDown, pointerMove, pointerUp };
   }
-}
 
-function resetTestArea() {
-  const testArea = document.getElementById("test-area");
-  testArea.removeAttribute("style");
-  testArea.innerHTML = "";
-}
+  // utilities
+  function setupFullscreenArea(area){
+    area.classList.add('fullscreen-area');
+    area.innerHTML = '';
+    // keep ad-area handled separately (it will be hidden by fullscreen-area)
+  }
 
-function exitTest() {
-  exitFullscreen();
-  hideExitHint();
-  resetTestArea();
-}
+  function resetTestArea(){
+    const area = document.getElementById('test-area');
+    // remove potential handlers
+    if (_touchHandlers){
+      try{
+        _touchHandlers.canvas.removeEventListener('pointerdown', _touchHandlers.pointerDown);
+        _touchHandlers.canvas.removeEventListener('pointermove', _touchHandlers.pointerMove);
+        _touchHandlers.canvas.removeEventListener('pointerup', _touchHandlers.pointerUp);
+        _touchHandlers.canvas.removeEventListener('pointercancel', _touchHandlers.pointerUp);
+      } catch(e){}
+      _touchHandlers = null;
+    }
+    area.classList.remove('fullscreen-area');
+    area.removeAttribute('style');
+    area.innerHTML = '';
+  }
+
+  function showExitHint(){
+    hideExitHint();
+    const hint = document.createElement('div');
+    hint.id = 'exit-hint';
+    hint.textContent = window.i18n.t('exitHint');
+    document.body.appendChild(hint);
+  }
+  function hideExitHint(){
+    const h = document.getElementById('exit-hint'); if (h) h.remove();
+  }
+
+  function enterFullscreen(){
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen().catch(()=>{});
+  }
+  function exitFullscreen(){
+    if (document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+  }
+
+  function exitTest(){
+    exitFullscreen();
+    hideExitHint();
+    resetTestArea();
+  }
+
+  // expose for debugging
+  window.exitTest = exitTest;
+})();
