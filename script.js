@@ -32,49 +32,98 @@ function setLanguage(lang) {
   document.getElementById("touch-test-btn").textContent = translations[lang].touchTestBtn;
 }
 
-function startDeadPixelTest() {
+function chooseDeadPixelMode() {
+  const choice = confirm("OK = Auto cycle colors\nCancel = Manual mode (tap to change color)");
+  if (choice) {
+    startDeadPixelTest(true);
+  } else {
+    startDeadPixelTest(false);
+  }
+}
+
+function startDeadPixelTest(autoMode) {
   enterFullscreen();
   const colors = ["black", "white", "red", "green", "blue"];
   let i = 0;
   const testArea = document.getElementById("test-area");
-  testArea.style.height = "100vh";
-  testArea.style.width = "100vw";
-  testArea.style.position = "fixed";
-  testArea.style.top = "0";
-  testArea.style.left = "0";
-  const interval = setInterval(() => {
+  setupFullscreenArea(testArea);
+  showExitHint();
+
+  if (autoMode) {
+    const interval = setInterval(() => {
+      testArea.style.backgroundColor = colors[i];
+      i = (i + 1) % colors.length;
+    }, 1000);
+    testArea.onclick = () => {
+      clearInterval(interval);
+      exitTest();
+    };
+  } else {
     testArea.style.backgroundColor = colors[i];
-    i = (i + 1) % colors.length;
-  }, 1000);
-  testArea.onclick = () => {
-    clearInterval(interval);
-    exitFullscreen();
-    resetTestArea();
-  };
+    testArea.onclick = () => {
+      i = (i + 1) % colors.length;
+      testArea.style.backgroundColor = colors[i];
+    };
+    testArea.addEventListener("dblclick", () => exitTest());
+  }
 }
 
 function startTouchTest() {
   enterFullscreen();
   const testArea = document.getElementById("test-area");
-  testArea.style.height = "100vh";
-  testArea.style.width = "100vw";
-  testArea.style.position = "fixed";
-  testArea.style.top = "0";
-  testArea.style.left = "0";
+  setupFullscreenArea(testArea);
   testArea.style.backgroundColor = "white";
-  testArea.innerHTML = "<p style='text-align:center;margin-top:20%;'>Touch the screen to see marks</p>";
-  testArea.onclick = () => exitTest();
+  testArea.innerHTML = "<p style='text-align:center;margin-top:20%;'>Drag your finger to draw and check touch response.<br>Double-tap anywhere to exit.</p>";
+  showExitHint();
+
+  let drawing = false;
   testArea.addEventListener("touchstart", (e) => {
-    const dot = document.createElement("div");
-    dot.style.position = "absolute";
-    dot.style.width = "20px";
-    dot.style.height = "20px";
-    dot.style.background = "black";
-    dot.style.borderRadius = "50%";
-    dot.style.left = e.touches[0].clientX - 10 + "px";
-    dot.style.top = e.touches[0].clientY - 10 + "px";
-    testArea.appendChild(dot);
+    drawing = true;
+    drawDot(e.touches[0].clientX, e.touches[0].clientY, testArea);
   });
+  testArea.addEventListener("touchmove", (e) => {
+    if (drawing) {
+      drawDot(e.touches[0].clientX, e.touches[0].clientY, testArea);
+    }
+  });
+  testArea.addEventListener("touchend", () => {
+    drawing = false;
+  });
+  testArea.addEventListener("dblclick", () => exitTest());
+}
+
+function drawDot(x, y, container) {
+  const dot = document.createElement("div");
+  dot.style.position = "absolute";
+  dot.style.width = "8px";
+  dot.style.height = "8px";
+  dot.style.background = "black";
+  dot.style.borderRadius = "50%";
+  dot.style.left = x - 4 + "px";
+  dot.style.top = y - 4 + "px";
+  container.appendChild(dot);
+}
+
+function setupFullscreenArea(area) {
+  area.style.height = "100vh";
+  area.style.width = "100vw";
+  area.style.position = "fixed";
+  area.style.top = "0";
+  area.style.left = "0";
+  area.style.zIndex = "9998";
+  area.innerHTML = "";
+}
+
+function showExitHint() {
+  let hint = document.createElement("div");
+  hint.id = "exit-hint";
+  hint.innerText = "Tap anywhere or double-tap to exit";
+  document.body.appendChild(hint);
+}
+
+function hideExitHint() {
+  const hint = document.getElementById("exit-hint");
+  if (hint) hint.remove();
 }
 
 function enterFullscreen() {
@@ -97,5 +146,6 @@ function resetTestArea() {
 
 function exitTest() {
   exitFullscreen();
+  hideExitHint();
   resetTestArea();
 }
