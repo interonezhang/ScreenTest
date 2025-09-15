@@ -1,327 +1,35 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>屏幕检测器</title>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background-color: #ffffff;
-            transition: background-color 0.3s ease;
-            position: relative;
-        }
-
-        h1 {
-            font-family: "Microsoft YaHei", "微软雅黑", sans-serif;
-            font-size: 48px;
-            font-weight: bold;
-            color: #333;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-            margin: 30px 0;
-            letter-spacing: 2px;
-            text-align: center;
-            width: 100%;
-        }
-
-        /* 菜单容器 */
-        .menu-container {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1000;
-            font-family: "Microsoft YaHei", "微软雅黑", sans-serif;
-        }
-
-        /* 主菜单按钮 */
-        .menu-button {
-            background-color: #666666;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .menu-button:hover {
-            background-color: #808080;
-        }
-
-        /* 主菜单内容 */
-        .menu-content {
-            visibility: hidden;
-            opacity: 0;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            margin-top: 5px;
-            background-color: #ffffff;
-            min-width: 160px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            border-radius: 4px;
-            padding: 5px 0;
-            transition: visibility 0s linear 0.2s, opacity 0.2s;
-        }
-
-        .menu-container:hover .menu-content {
-            visibility: visible;
-            opacity: 1;
-            transition-delay: 0s;
-        }
-
-        /* 主菜单项 */
-        .menu-item {
-            position: relative;
-            padding: 12px 35px 12px 16px;
-            color: #333;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            transition: background-color 0.2s ease;
-        }
-
-        .menu-item:hover {
-            background-color: #f0f0f0;
-        }
-
-        /* 箭头指示器 */
-        .menu-item::after {
-            content: '›';
-            position: absolute;
-            right: 10px;
-            font-size: 20px;
-            line-height: 1;
-            transition: transform 0.2s ease;
-        }
-
-        .menu-item:hover::after {
-            transform: translateX(3px);
-        }
-
-        /* 子菜单包装器 */
-        .submenu-wrapper {
-            position: absolute;
-            top: -5px;
-            left: calc(100% - 20px);
-            height: calc(100% + 10px);
-            width: 200px;
-            background: transparent;
-            padding: 0;
-            margin: 0;
-        }
-
-        /* 子菜单 */
-        .submenu {
-            visibility: hidden;
-            opacity: 0;
-            position: absolute;
-            left: 20px;
-            top: 0;
-            background-color: #ffffff;
-            min-width: 160px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            border-radius: 4px;
-            padding: 5px 0;
-            transition: visibility 0s linear 0.2s, opacity 0.2s;
-        }
-
-        /* 显示子菜单的条件 */
-        .menu-item:hover .submenu-wrapper .submenu,
-        .submenu-wrapper:hover .submenu {
-            visibility: visible;
-            opacity: 1;
-            transition-delay: 0s;
-        }
-
-        /* 子菜单项 */
-        .submenu-item {
-            padding: 12px 16px;
-            color: #333;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            transition: background-color 0.2s ease;
-            white-space: nowrap;
-            user-select: none;
-        }
-
-        .submenu-item:hover {
-            background-color: #f0f0f0;
-        }
-
-        /* 颜色指示器 */
-        .color-indicator {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            margin-right: 10px;
-            display: inline-block;
-            vertical-align: middle;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            pointer-events: none;
-        }
-
-        /* 全屏消息 */
-        #fullscreen-message {
-            display: none;
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-family: "Microsoft YaHei", "微软雅黑", sans-serif;
-            z-index: 1001;
-        }
-
-        /* 全屏模式下隐藏元素 */
-        body.fullscreen-active .menu-container,
-        body.fullscreen-active h1 {
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-    </style>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DP6RLS9XLF"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-DP6RLS9XLF');
-    </script>
-    <!-- Microsoft Clarity -->
-    <script type="text/javascript">
-        (function(c,l,a,r,i,t,y){
-            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-        })(window, document, "clarity", "script", "t50ohgu3c7");
-    </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Screen Detector MVP v2</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <div class="menu-container">
-        <button class="menu-button">菜单</button>
-        <div class="menu-content">
-            <div class="menu-item">
-                <span>像素检测</span>
-                <div class="submenu-wrapper">
-                    <div class="submenu">
-                        <div class="submenu-item" data-color="#000000">
-                            <span class="color-indicator" style="background-color: #000000;"></span>
-                            <span>黑色</span>
-                        </div>
-                        <div class="submenu-item" data-color="#ffffff">
-                            <span class="color-indicator" style="background-color: #ffffff;"></span>
-                            <span>白色</span>
-                        </div>
-                        <div class="submenu-item" data-color="#ff0000">
-                            <span class="color-indicator" style="background-color: #ff0000;"></span>
-                            <span>红色</span>
-                        </div>
-                        <div class="submenu-item" data-color="#00ff00">
-                            <span class="color-indicator" style="background-color: #00ff00;"></span>
-                            <span>绿色</span>
-                        </div>
-                        <div class="submenu-item" data-color="#0000ff">
-                            <span class="color-indicator" style="background-color: #0000ff;"></span>
-                            <span>蓝色</span>
-                        </div>
-                        <div class="submenu-item" data-color="random">
-                            <span class="color-indicator" style="background: linear-gradient(45deg, #ff0000, #00ff00, #0000ff);"></span>
-                            <span>随机色</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <header>
+    <div class="language-switcher">
+      <button onclick="setLanguage('en')">English</button>
+      <button onclick="setLanguage('hi')">हिन्दी</button>
+      <button onclick="setLanguage('id')">Bahasa</button>
+      <button onclick="setLanguage('pt')">Português</button>
     </div>
+    <h1 id="welcome-text">Welcome to Screen Detector</h1>
+    <p id="subtitle-text">Easily test your device screen for dead pixels and touch issues.</p>
+  </header>
 
-    <h1>屏幕检测器</h1>
-    <div id="fullscreen-message">按ESC键或点击屏幕退出全屏</div>
+  <main>
+    <div class="button-group">
+      <button onclick="startDeadPixelTest()" id="dead-pixel-btn">Dead Pixel Test</button>
+      <button onclick="startTouchTest()" id="touch-test-btn">Touch Test</button>
+    </div>
+    <div id="test-area"></div>
+  </main>
 
-    <script>
-        let originalColor = '#ffffff';
-        let isFullscreen = false;
+  <footer>
+    <div id="ad-area">[Ad space reserved]</div>
+  </footer>
 
-        // 使用事件委托处理子菜单点击
-        document.querySelector('.submenu').addEventListener('click', function(e) {
-            const item = e.target.closest('.submenu-item');
-            if (!item) return;
-
-            e.preventDefault();
-            e.stopPropagation();
-
-            const color = item.dataset.color;
-            if (color === 'random') {
-                randomColorMode();
-            } else {
-                setColorAndFullscreen(color);
-            }
-        });
-
-        function getRandomColor() {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
-
-        function setColor(color) {
-            document.body.style.backgroundColor = color;
-        }
-
-        function randomColorMode() {
-            const color = getRandomColor();
-            setColorAndFullscreen(color);
-        }
-
-        async function setColorAndFullscreen(color) {
-            originalColor = document.body.style.backgroundColor || '#ffffff';
-            setColor(color);
-
-            try {
-                await document.documentElement.requestFullscreen();
-                isFullscreen = true;
-                document.body.classList.add('fullscreen-active');
-                document.getElementById('fullscreen-message').style.display = 'block';
-            } catch (err) {
-                console.error('全屏模式出错:', err);
-            }
-        }
-
-        // 处理退出全屏
-        document.addEventListener('fullscreenchange', function() {
-            if (!document.fullscreenElement && isFullscreen) {
-                exitFullscreenMode();
-            }
-        });
-
-        // 处理点击事件
-        document.addEventListener('click', function(e) {
-            if (isFullscreen && !e.target.closest('.menu-container')) {
-                document.exitFullscreen();
-            }
-        });
-
-        function exitFullscreenMode() {
-            isFullscreen = false;
-            document.body.classList.remove('fullscreen-active');
-            document.getElementById('fullscreen-message').style.display = 'none';
-            setColor(originalColor);
-        }
-    </script>
+  <script src="script.js"></script>
 </body>
 </html>
